@@ -5,17 +5,20 @@ __pycache__/
 .env
 *.parquet
 data/cache/
+*.arrow
 
 # Node
 node_modules/
 dist/
 apps/web/.env*
+apps/web/.vite/
 apps/mobile/.env*
 
 # OS/IDE
 .DS_Store
 .idea/
 .vscode/
+Thumbs.db
 
 # Build artifacts
 *.log
