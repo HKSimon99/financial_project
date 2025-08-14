@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.env
+*.parquet
+data/cache/
+
+# Node
+node_modules/
+dist/
+apps/web/.env*
+apps/mobile/.env*
+
+# OS/IDE
+.DS_Store
+.idea/
+.vscode/
+
+# Build artifacts
+*.log
+coverage/

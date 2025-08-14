@@ -1,0 +1,16 @@
+streamlit
+pandas
+numpy
+python-dotenv
+requests
+beautifulsoup4
+lxml
+plotly
+fpdf
+openpyxl
+scipy
+aiohttp
+pyarrow
+Pillow
+scikit-image
+requests-cache==1.2.0
