@@ -28,40 +28,22 @@
 ## 📂 폴더 구조
 financial_project/
 │
-├── data/
-│ └── reports/
-│
-├── src/
-│ ├── data_fetch.py
-│ ├── analysis.py
-│ ├── visualization.py
-│ ├── portfolio.py
-│ ├── report_generator.py
-│ └── utils.py
-│
-├── dashboard/
-│ ├── app.py
-│ └── pages/
-│ ├── 1_단일기업분석.py
-│ ├── 2_다중기업분석.py
-│ └── 3_업종평균비교.py
-│ 
-├── requirements.txt
-└── README.md
 ---
 
 ## 🔑 실행 전 준비
-1. **Opendart API Key 발급**
-   - [opendart.fss.or.kr](https://opendart.fss.or.kr/) 회원가입 → API 인증키 발급
-   - `src/data_fetch.py` 상단의 `API_KEY = "YOUR_API_KEY"` 부분 수정
+1. from repository root
 
-2. **라이브러리 설치**
-   ```bash
-   pip install -r requirements.txt
+pip install -e packages/core  
+pip install -e services/api
 
-3. 폴더 생성
 
-mkdir -p data/reports
+2. FastAPI 서버실행
 
-4. 실행방법
-streamlit run dashboard/app.py
+uvicorn services.api.app.main:app --reload --host 0.0.0.0 --port 8000
+
+3. Frontend 실행
+
+cd apps/web
+npm install
+npm run lint
+npm run dev
