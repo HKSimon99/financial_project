@@ -22,6 +22,8 @@ export default function Company() {
   const [fsRows, setFsRows] = useState<any[]>([]);
   const [ratios, setRatios] = useState<any[]>([]);
   const [opinion, setOpinion] = useState<Opinion | null>(null);
+  const [logo, setLogo] = useState<string | null>(null);
+  const [lastPrice, setLastPrice] = useState<number | null>(null);
 
   // UX state
   const [loading, setLoading] = useState(false);
@@ -37,24 +39,35 @@ export default function Company() {
       const ci = await api.get(`/lookup/company/${stock}`);
       setInfo(ci.data);
 
-      // 2) Parallel: financials snapshot, ratios, opinion
+      // 2) Parallel: financials snapshot, ratios, opinion, logo, prices
       const corp = ci.data.corp_code;
-      const [fin, rat, op] = await Promise.all([
-        // use either by-stock alias or corp_code route — prefer corp_code for compatibility
-        api.get(`/market/financials/${corp}`, { params: { year } }).catch(() => ({ data: { rows: [] } })),
+      const [fin, rat, op, lg, prices] = await Promise.all([
+        api
+          .get(`/market/financials/${corp}`, { params: { year } })
+          .catch(() => ({ data: { rows: [] } })),
         api.get(`/market/ratios/${stock}`).catch(() => ({ data: { rows: [] } })),
         api.get(`/market/opinion/${stock}`).catch(() => ({ data: {} })),
+        api.get(`/lookup/logo/${stock}`).catch(() => ({ data: { logo_url: null } })),
+        api
+          .get(`/market/prices/${stock}`, { params: { start_date: start, end_date: end } })
+          .catch(() => ({ data: { points: [] } })),
       ]);
 
-      const rows = (fin.data?.rows || fin.data?.list || []);
+      const rows = fin.data?.rows || fin.data?.list || [];
       setFsRows(Array.isArray(rows) ? rows : []);
       setRatios(Array.isArray(rat.data?.rows) ? rat.data.rows : []);
       setOpinion(op.data || {});
+      setLogo(lg.data?.logo_url || null);
+      const pts = Array.isArray(prices.data?.points) ? prices.data.points : [];
+      const lp = pts.length ? Number(pts[pts.length - 1]?.close) : null;
+      setLastPrice(lp);
     } catch (e: any) {
       setErr(e?.response?.data?.detail ?? e.message ?? "load failed");
       setFsRows([]);
       setRatios([]);
       setOpinion(null);
+      setLogo(null);
+      setLastPrice(null);
     } finally {
       setLoading(false);
     }
@@ -83,14 +96,14 @@ export default function Company() {
 
       {err && <div style={{ color: "#c33" }}>{err}</div>}
 
-      {/* Company Header (logo + name) */}
-      <CompanyHeader stock={stock} />
+      {/* Company Header (logo + name + price) */}
+      <CompanyHeader info={info} logo={logo} price={lastPrice} />
 
       {/* Price line chart (component fetches its own data) */}
       <div>
         <h3 style={{ margin: "8px 0" }}>주가</h3>
         <PriceChart stock={stock} start={start} end={end} />
-        <CandleChart stock={code} start={start} end={end} />
+        <CandleChart stock={stock} start={start} end={end} />
         {!canBacktestRange && (
           <div style={{ color: "#c33", marginTop: 4 }}>시작일이 종료일보다 이후일 수 없습니다.</div>
         )}
