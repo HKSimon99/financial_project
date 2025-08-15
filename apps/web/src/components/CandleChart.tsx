@@ -32,7 +32,7 @@ export function CandleChart({ stock, start, end }: { stock: string; start: strin
     };
 
     const chart = createChart(containerRef.current, { width: containerRef.current.clientWidth, height: 360, ...opts });
-    const candleSeries = chart.addCandlestickSeries({
+    chart.addCandlestickSeries({
       upColor: "#26a69a",
       downColor: "#ef5350",
       borderDownColor: "#ef5350",
@@ -40,7 +40,7 @@ export function CandleChart({ stock, start, end }: { stock: string; start: strin
       wickDownColor: "#ef5350",
       wickUpColor: "#26a69a",
     });
-    const volumeSeries = chart.addHistogramSeries({
+    chart.addHistogramSeries({
       priceFormat: { type: "volume" },
       priceScaleId: "left",
       base: 0,
@@ -55,36 +55,6 @@ export function CandleChart({ stock, start, end }: { stock: string; start: strin
     });
     ro.observe(containerRef.current);
 
-    (async () => {
-      try {
-        const r = await api.get(`/market/prices/${stock}`, {
-          params: { start_date: start, end_date: end },
-        });
-        const rows: Array<{ date: string; open?: number; high?: number; low?: number; close?: number; volume?: number }> = r.data.points || [];
-        const candles = rows
-          .filter((d) => d.open != null && d.high != null && d.low != null && d.close != null)
-          .map((d) => ({
-            time: d.date as unknown as Time, // "YYYY-MM-DD" accepted
-            open: Number(d.open),
-            high: Number(d.high),
-            low: Number(d.low),
-            close: Number(d.close),
-          }));
-        const volumes = rows.map((d) => ({
-          time: d.date as unknown as Time,
-          value: Number(d.volume || 0),
-          color: d.close != null && d.open != null && Number(d.close) >= Number(d.open) ? "#2e7d32" : "#c62828",
-        }));
-
-        candleSeries.setData(candles);
-        volumeSeries.setData(volumes);
-        chart.timeScale().fitContent();
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error("Failed to load prices", e);
-      }
-    })();
-
     chartRef.current = chart;
     return () => {
       ro.disconnect();
@@ -98,24 +68,37 @@ export function CandleChart({ stock, start, end }: { stock: string; start: strin
     if (!chartRef.current) return;
     (async () => {
       try {
-        const r = await api.get(`/market/prices/${stock}`, { params: { start_date: start, end_date: end } });
-        const rows: Array<{ date: string; open?: number; high?: number; low?: number; close?: number; volume?: number }> = r.data.points || [];
+        const r = await api.get(`/market/prices/${stock}`, {
+          params: { start_date: start, end_date: end },
+        });
+        const rows: Array<{ date: string; open?: number; high?: number; low?: number; close?: number; volume?: number }> =
+          r.data.points || [];
         const candles = rows
           .filter((d) => d.open != null && d.high != null && d.low != null && d.close != null)
-          .map((d) => ({ time: d.date as unknown as Time, open: Number(d.open), high: Number(d.high), low: Number(d.low), close: Number(d.close) }));
-        const volumes = rows.map((d) => ({ time: d.date as unknown as Time, value: Number(d.volume || 0), color: d.close != null && d.open != null && Number(d.close) >= Number(d.open) ? "#2e7d32" : "#c62828" }));
+          .map((d) => ({
+            time: d.date as unknown as Time,
+            open: Number(d.open),
+            high: Number(d.high),
+            low: Number(d.low),
+            close: Number(d.close),
+          }));
+        const volumes = rows.map((d) => ({
+          time: d.date as unknown as Time,
+          value: Number(d.volume || 0),
+          color: d.close != null && d.open != null && Number(d.close) >= Number(d.open) ? "#2e7d32" : "#c62828",
+        }));
 
         // Find series (first is candle, second is volume)
-        const series = (chartRef.current as any)?.serieses?.();
-        const candleSeries = series?.[0];
-        const volumeSeries = series?.[1];
+        type ChartWithSeries = IChartApi & { serieses?: () => unknown[] };
+        const series = (chartRef.current as ChartWithSeries).serieses?.();
+        const candleSeries = series?.[0] as { setData: (d: typeof candles) => void } | undefined;
+        const volumeSeries = series?.[1] as { setData: (d: typeof volumes) => void } | undefined;
         if (candleSeries && volumeSeries) {
           candleSeries.setData(candles);
           volumeSeries.setData(volumes);
-          chartRef.current!.timeScale().fitContent();
+          chartRef.current.timeScale().fitContent();
         }
       } catch (e) {
-        // eslint-disable-next-line no-console
         console.error("Failed to reload prices", e);
       }
     })();
