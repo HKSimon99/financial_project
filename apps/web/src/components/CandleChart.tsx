@@ -1,18 +1,28 @@
 import { useEffect, useRef } from "react";
-import { createChart, ColorType, CrosshairMode, IChartApi, DeepPartial, ChartOptions, Time } from "lightweight-charts";
+import {
+  createChart,
+  ColorType,
+  CrosshairMode,
+  CandlestickSeries,
+  HistogramSeries,
+} from "lightweight-charts";
+import type {
+  IChartApi,
+  ISeriesApi,
+  DeepPartial,
+  ChartOptions,
+  Time,
+} from "lightweight-charts";
 import { api } from "../api/client";
 
-/**
- * Candlestick chart component backed by /market/prices endpoint.
- *
- * Usage:
- * <CandleChart stock="005930" start="2024-01-01" end="2025-08-01" />
- */
-export function CandleChart({ stock, start, end }: { stock: string; start: string; end: string }) {
+export function CandleChart({
+  stock, start, end,
+}: { stock: string; start: string; end: string }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const chartRef = useRef<IChartApi | null>(null);
+  const candleSeriesRef = useRef<ISeriesApi<"Candlestick", Time> | null>(null);
+  const volumeSeriesRef = useRef<ISeriesApi<"Histogram", Time> | null>(null);
 
-  // Create chart once
   useEffect(() => {
     if (!containerRef.current || chartRef.current) return;
 
@@ -21,18 +31,17 @@ export function CandleChart({ stock, start, end }: { stock: string; start: strin
         background: { type: ColorType.Solid, color: "#0b0b0c" },
         textColor: "#d0d0d0",
       },
-      grid: {
-        vertLines: { color: "#1e1e22" },
-        horzLines: { color: "#1e1e22" },
-      },
+      grid: { vertLines: { color: "#1e1e22" }, horzLines: { color: "#1e1e22" } },
       crosshair: { mode: CrosshairMode.Normal },
-      timeScale: { rightOffset: 4, barSpacing: 8, fixLeftEdge: true, fixRightEdge: false, timeVisible: true, secondsVisible: false },
+      timeScale: { rightOffset: 4, barSpacing: 8, fixLeftEdge: true, timeVisible: true, secondsVisible: false },
       rightPriceScale: { borderVisible: false },
       localization: { priceFormatter: (p: number) => p.toLocaleString() },
     };
 
-    const chart = createChart(containerRef.current, { width: containerRef.current.clientWidth, height: 360, ...opts });
-    chart.addCandlestickSeries({
+    const el = containerRef.current;
+    const chart = createChart(el, { width: el.clientWidth, height: 360, ...opts });
+
+    const candleSeries = chart.addSeries(CandlestickSeries, {
       upColor: "#26a69a",
       downColor: "#ef5350",
       borderDownColor: "#ef5350",
@@ -40,64 +49,63 @@ export function CandleChart({ stock, start, end }: { stock: string; start: strin
       wickDownColor: "#ef5350",
       wickUpColor: "#26a69a",
     });
-    chart.addHistogramSeries({
+
+    const volumeSeries = chart.addSeries(HistogramSeries, {
       priceFormat: { type: "volume" },
       priceScaleId: "left",
       base: 0,
       color: "#3a3f5a",
     });
-    chart.priceScale('left').applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
 
-    // Resize observer for responsiveness
+    chart.priceScale("left").applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
+
+    chartRef.current = chart;
+    candleSeriesRef.current = candleSeries;
+    volumeSeriesRef.current = volumeSeries;
+
     const ro = new ResizeObserver(() => {
       if (!containerRef.current) return;
       chart.applyOptions({ width: containerRef.current.clientWidth });
     });
-    ro.observe(containerRef.current);
+    ro.observe(el);
 
-    chartRef.current = chart;
     return () => {
       ro.disconnect();
       chart.remove();
       chartRef.current = null;
+      candleSeriesRef.current = null;
+      volumeSeriesRef.current = null;
     };
   }, []);
 
-  // Reload data when inputs change (stock/start/end)
   useEffect(() => {
-    if (!chartRef.current) return;
+    const chart = chartRef.current;
+    const candleSeries = candleSeriesRef.current;
+    const volumeSeries = volumeSeriesRef.current;
+    if (!chart || !candleSeries || !volumeSeries) return;
+
     (async () => {
       try {
-        const r = await api.get(`/market/prices/${stock}`, {
-          params: { start_date: start, end_date: end },
-        });
+        const r = await api.get(`/market/prices/${stock}`, { params: { start_date: start, end_date: end } });
         const rows: Array<{ date: string; open?: number; high?: number; low?: number; close?: number; volume?: number }> =
-          r.data.points || [];
+          r.data?.points ?? [];
+
         const candles = rows
-          .filter((d) => d.open != null && d.high != null && d.low != null && d.close != null)
-          .map((d) => ({
-            time: d.date as unknown as Time,
-            open: Number(d.open),
-            high: Number(d.high),
-            low: Number(d.low),
-            close: Number(d.close),
+          .filter(d => d.open != null && d.high != null && d.low != null && d.close != null)
+          .map(d => ({
+            time: d.date as unknown as Time, // 'YYYY-MM-DD' is valid BusinessDay string
+            open: Number(d.open), high: Number(d.high), low: Number(d.low), close: Number(d.close),
           }));
-        const volumes = rows.map((d) => ({
+
+        const volumes = rows.map(d => ({
           time: d.date as unknown as Time,
-          value: Number(d.volume || 0),
+          value: Number(d.volume ?? 0),
           color: d.close != null && d.open != null && Number(d.close) >= Number(d.open) ? "#2e7d32" : "#c62828",
         }));
 
-        // Find series (first is candle, second is volume)
-        type ChartWithSeries = IChartApi & { serieses?: () => unknown[] };
-        const series = (chartRef.current as ChartWithSeries).serieses?.();
-        const candleSeries = series?.[0] as { setData: (d: typeof candles) => void } | undefined;
-        const volumeSeries = series?.[1] as { setData: (d: typeof volumes) => void } | undefined;
-        if (candleSeries && volumeSeries) {
-          candleSeries.setData(candles);
-          volumeSeries.setData(volumes);
-          chartRef.current.timeScale().fitContent();
-        }
+        candleSeries.setData(candles);
+        volumeSeries.setData(volumes);
+        chart.timeScale().fitContent();
       } catch (e) {
         console.error("Failed to reload prices", e);
       }

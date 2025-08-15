@@ -2,6 +2,15 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
+## Design System
+
+Reusable UI primitives live in `src/components/ui`:
+
+- **Card** – `section` element with padding, border and shadow. It exposes `title` for an optional header and uses `role="region"`/`aria-labelledby` for accessibility.
+- **SectionTitle** – semantic heading component with uniform typography and keyboard focus.
+
+These primitives ensure consistent styling, responsive layout and baseline accessibility across pages.
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh

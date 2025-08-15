@@ -5,6 +5,8 @@ import { PriceChart } from "../components/PriceChart";
 import { FinancialBars } from "../components/FinancialBars";
 import { RatioTable } from "../components/RatioTable";
 import { CandleChart } from "../components/CandleChart";
+import { Card } from "../components/ui/Card";
+import { SectionTitle } from "../components/ui/SectionTitle";
 
 // Minimal shapes we rely on
 type CompanyInfo = { corp_name: string; corp_code: string; stock_code: string };
@@ -89,60 +91,59 @@ export default function Company() {
 
   return (
     <div className="p-6 grid gap-4">
-      <h2 className="m-0">단일 기업 분석</h2>
+      <SectionTitle className="m-0">단일 기업 분석</SectionTitle>
 
       {/* Controls */}
-      <div className="grid gap-2 [grid-template-columns:repeat(3,minmax(220px,1fr))]">
-        <input value={stock} onChange={(e)=>setStock(e.target.value)} placeholder="종목코드 (예: 005930)" />
-        <div className="flex gap-2">
-          <input type="date" value={start} onChange={(e)=>setStart(e.target.value)} />
-          <input type="date" value={end} onChange={(e)=>setEnd(e.target.value)} />
+      <Card title="설정">
+        <div className="grid gap-2 [grid-template-columns:repeat(3,minmax(220px,1fr))]">
+          <input value={stock} onChange={(e)=>setStock(e.target.value)} placeholder="종목코드 (예: 005930)" />
+          <div className="flex gap-2">
+            <input type="date" value={start} onChange={(e)=>setStart(e.target.value)} />
+            <input type="date" value={end} onChange={(e)=>setEnd(e.target.value)} />
+          </div>
+          <div className="flex gap-2 items-center">
+            <label>연도</label>
+            <input type="number" value={year} onChange={(e)=>setYear(parseInt(e.target.value||"0",10)||year)} style={{ width: 120 }} />
+            <button onClick={loadAll} disabled={loading}>불러오기</button>
+          </div>
         </div>
-        <div className="flex gap-2 items-center">
-          <label>연도</label>
-          <input type="number" value={year} onChange={(e)=>setYear(parseInt(e.target.value||"0",10)||year)} style={{ width: 120 }} />
-          <button onClick={loadAll} disabled={loading}>불러오기</button>
-        </div>
-      </div>
-
-      {err && <div className="text-danger">{err}</div>}
+        {err && <div className="text-danger mt-2">{err}</div>}
+      </Card>
 
       {/* Company Header (logo + name + price) */}
-      <CompanyHeader info={info} logo={logo} price={lastPrice} />
+      <Card title="기업 정보">
+        <CompanyHeader info={info} logo={logo} price={lastPrice} />
+      </Card>
 
       {/* Price line chart (component fetches its own data) */}
-      <div>
-        <h3 style={{ margin: "8px 0" }}>주가</h3>
+      <Card title="주가">
         <PriceChart stock={stock} start={start} end={end} />
         <CandleChart stock={stock} start={start} end={end} />
         {!canBacktestRange && (
           <div className="text-[#c33] mt-1">시작일이 종료일보다 이후일 수 없습니다.</div>
         )}
-      </div>
+      </Card>
 
       {/* Financial snapshot bars */}
-      <div>
-        <h3 style={{ margin: "8px 0" }}>재무제표 주요 지표 ({year})</h3>
+      <Card title={`재무제표 주요 지표 (${year})`}>
         {fsRows?.length ? (
           <FinancialBars rows={fsRows} />
         ) : (
           <div style={{ opacity: 0.7 }}>데이터가 없습니다.</div>
         )}
-      </div>
+      </Card>
 
       {/* Ratios table */}
-      <div>
-        <h3 style={{ margin: "8px 0" }}>재무비율</h3>
+      <Card title="재무비율">
         {ratios?.length ? (
           <RatioTable rows={ratios} />
         ) : (
           <div style={{ opacity: 0.7 }}>데이터가 없습니다.</div>
         )}
-      </div>
+      </Card>
 
       {/* Investment opinion (optional) */}
-      <div>
-        <h3 style={{ margin: "8px 0" }}>투자의견</h3>
+      <Card title="투자의견">
         {opinion ? (
           <div className="flex gap-4 flex-wrap">
             <Chip label={`의견: ${opinion.opinion ?? "-"}`} />
@@ -152,7 +153,7 @@ export default function Company() {
         ) : (
           <div style={{ opacity: 0.7 }}>데이터가 없습니다.</div>
         )}
-      </div>
+      </Card>
     </div>
   );
 }

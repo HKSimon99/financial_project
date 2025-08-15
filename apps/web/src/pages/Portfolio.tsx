@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { api } from "../api/client";
 import { LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
+import { Card } from "../components/ui/Card";
 
 type CurvePoint = { date: string; value: number };
 
@@ -83,8 +84,7 @@ export default function Portfolio() {
 
   return (
     <>
-      <div className="p-6">
-        <h2>포트폴리오 최적화</h2>
+      <Card title="포트폴리오 최적화">
         <div className="grid gap-2 [grid-template-columns:repeat(2,minmax(240px,1fr))]">
           <input value={tickers} onChange={e=>setTickers(e.target.value)} placeholder="005930, 000660, 035420" />
           <select value={method} onChange={(e) => setMethod(e.target.value as "sharpe" | "minvar") }>
@@ -96,7 +96,6 @@ export default function Portfolio() {
           <button onClick={run} disabled={loading}>최적화</button>
           <button onClick={backtest} disabled={!result || loading}>백테스트</button>
         </div>
-
         {err && <div className="mt-3 text-danger">{err}</div>}
 
         {result && (
@@ -104,10 +103,10 @@ export default function Portfolio() {
             {JSON.stringify(result, null, 2)}
           </pre>
         )}
-      </div>
+      </Card>
 
       {curve && (
-        <div className="p-6">
+        <Card title="백테스트 결과">
           <div className="h-[360px] mt-4">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={curve}>
@@ -119,7 +118,7 @@ export default function Portfolio() {
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </Card>
       )}
     </>
   );

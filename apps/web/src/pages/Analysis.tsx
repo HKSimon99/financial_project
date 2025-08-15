@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { api } from "../api/client";
+import { Card } from "../components/ui/Card";
 
 type FsRow = Record<string, unknown>;
 type Health = Record<string, unknown>;
@@ -21,8 +22,7 @@ export default function Analysis() {
   };
 
   return (
-    <div className="p-6">
-      <h2 className="text-xl font-semibold mb-3">재무 분석</h2>
+    <Card title="재무 분석">
       <div className="flex gap-2 mb-3">
         <input
           value={corpCode}
@@ -55,6 +55,6 @@ export default function Analysis() {
           {JSON.stringify(health, null, 2)}
         </pre>
       )}
-    </div>
+    </Card>
   );
 }
