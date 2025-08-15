@@ -15,26 +15,11 @@ export function CompanyHeader({
 }) {
   if (!info) return null;
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 16,
-        padding: "12px 16px",
-        borderRadius: 12,
-        background: "linear-gradient(90deg, var(--color-primary), var(--color-secondary))",
-        color: "#fff",
-      }}
-    >
+    <div className="flex items-center gap-4 p-3 rounded-xl bg-gradient-to-r from-primary to-secondary text-white">
       {logo && (
-        <img
-          src={logo}
-          width={60}
-          height={60}
-          style={{ objectFit: "contain", borderRadius: 8 }}
-        />
+        <img src={logo} width={60} height={60} className="object-contain rounded-lg" />
       )}
-      <h3 style={{ margin: 0, display: "flex", alignItems: "center", gap: 12 }}>
+      <h3 className="m-0 flex items-center gap-3">
         {info.corp_name} ({info.stock_code})
         {price != null && <Chip label={`현재가: ${price.toLocaleString()}`} />}
       </h3>
@@ -44,17 +29,7 @@ export function CompanyHeader({
 
 function Chip({ label }: { label: string }) {
   return (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        padding: "4px 10px",
-        borderRadius: 999,
-        border: "1px solid #444",
-        background: "#111",
-        fontSize: 13,
-      }}
-    >
+    <span className="inline-flex items-center px-2.5 py-1 rounded-full border border-gray-700 bg-gray-900 text-sm">
       {label}
     </span>
   );

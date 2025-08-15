@@ -83,9 +83,9 @@ export default function Portfolio() {
 
   return (
     <>
-      <div style={{ padding: 24 }}>
+      <div className="p-6">
         <h2>포트폴리오 최적화</h2>
-        <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(2, minmax(240px, 1fr))" }}>
+        <div className="grid gap-2 [grid-template-columns:repeat(2,minmax(240px,1fr))]">
           <input value={tickers} onChange={e=>setTickers(e.target.value)} placeholder="005930, 000660, 035420" />
           <select value={method} onChange={(e) => setMethod(e.target.value as "sharpe" | "minvar") }>
             <option value="sharpe">Max Sharpe</option>
@@ -97,18 +97,18 @@ export default function Portfolio() {
           <button onClick={backtest} disabled={!result || loading}>백테스트</button>
         </div>
 
-        {err && <div style={{ marginTop: 12, color: "var(--color-danger)" }}>{err}</div>}
+        {err && <div className="mt-3 text-danger">{err}</div>}
 
         {result && (
-          <pre style={{ marginTop: 16, background: "#111", color: "#0f0", padding: 12 }}>
+          <pre className="mt-4 bg-gray-900 text-green-400 p-3">
             {JSON.stringify(result, null, 2)}
           </pre>
         )}
       </div>
 
       {curve && (
-        <div style={{ padding: 24 }}>
-          <div style={{ height: 360, marginTop: 16 }}>
+        <div className="p-6">
+          <div className="h-[360px] mt-4">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={curve}>
                 <CartesianGrid strokeDasharray="3 3" />

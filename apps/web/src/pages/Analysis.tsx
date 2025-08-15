@@ -21,17 +21,40 @@ export default function Analysis() {
   };
 
   return (
-    <div style={{ padding: 24 }}>
-      <h2>재무 분석</h2>
-      <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
-        <input value={corpCode} onChange={(e) => setCorpCode(e.target.value)} placeholder="DART corp_code" />
-        <input value={year} onChange={(e) => setYear(e.target.value)} placeholder="Year" />
-        <button onClick={loadFS}>FS 불러오기</button>
-        <button onClick={calcHealth} disabled={!fsRows.length}>
+    <div className="p-6">
+      <h2 className="text-xl font-semibold mb-3">재무 분석</h2>
+      <div className="flex gap-2 mb-3">
+        <input
+          value={corpCode}
+          onChange={(e) => setCorpCode(e.target.value)}
+          placeholder="DART corp_code"
+          className="border rounded px-2 py-1"
+        />
+        <input
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+          placeholder="Year"
+          className="border rounded px-2 py-1"
+        />
+        <button
+          onClick={loadFS}
+          className="px-3 py-2 rounded-md bg-primary text-white hover:bg-secondary"
+        >
+          FS 불러오기
+        </button>
+        <button
+          onClick={calcHealth}
+          disabled={!fsRows.length}
+          className="px-3 py-2 rounded-md bg-primary text-white hover:bg-secondary disabled:opacity-50"
+        >
           건전성 계산
         </button>
       </div>
-      {health && <pre style={{ background: "#111", color: "#0f0", padding: 12 }}>{JSON.stringify(health, null, 2)}</pre>}
+      {health && (
+        <pre className="bg-gray-900 text-green-400 p-3 overflow-x-auto">
+          {JSON.stringify(health, null, 2)}
+        </pre>
+      )}
     </div>
   );
 }

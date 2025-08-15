@@ -88,24 +88,24 @@ export default function Company() {
   }, [loadAll]);
 
   return (
-    <div style={{ padding: 24, display: "grid", gap: 16 }}>
-      <h2 style={{ margin: 0 }}>단일 기업 분석</h2>
+    <div className="p-6 grid gap-4">
+      <h2 className="m-0">단일 기업 분석</h2>
 
       {/* Controls */}
-      <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(3, minmax(220px, 1fr))" }}>
+      <div className="grid gap-2 [grid-template-columns:repeat(3,minmax(220px,1fr))]">
         <input value={stock} onChange={(e)=>setStock(e.target.value)} placeholder="종목코드 (예: 005930)" />
-        <div style={{ display: "flex", gap: 8 }}>
+        <div className="flex gap-2">
           <input type="date" value={start} onChange={(e)=>setStart(e.target.value)} />
           <input type="date" value={end} onChange={(e)=>setEnd(e.target.value)} />
         </div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <div className="flex gap-2 items-center">
           <label>연도</label>
           <input type="number" value={year} onChange={(e)=>setYear(parseInt(e.target.value||"0",10)||year)} style={{ width: 120 }} />
           <button onClick={loadAll} disabled={loading}>불러오기</button>
         </div>
       </div>
 
-      {err && <div style={{ color: "var(--color-danger)" }}>{err}</div>}
+      {err && <div className="text-danger">{err}</div>}
 
       {/* Company Header (logo + name + price) */}
       <CompanyHeader info={info} logo={logo} price={lastPrice} />
@@ -116,7 +116,7 @@ export default function Company() {
         <PriceChart stock={stock} start={start} end={end} />
         <CandleChart stock={stock} start={start} end={end} />
         {!canBacktestRange && (
-          <div style={{ color: "#c33", marginTop: 4 }}>시작일이 종료일보다 이후일 수 없습니다.</div>
+          <div className="text-[#c33] mt-1">시작일이 종료일보다 이후일 수 없습니다.</div>
         )}
       </div>
 
@@ -144,7 +144,7 @@ export default function Company() {
       <div>
         <h3 style={{ margin: "8px 0" }}>투자의견</h3>
         {opinion ? (
-          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+          <div className="flex gap-4 flex-wrap">
             <Chip label={`의견: ${opinion.opinion ?? "-"}`} />
             <Chip label={`목표가: ${opinion.target_price ? opinion.target_price.toLocaleString() : "-"}`} />
             <Chip label={`애널리스트 수: ${opinion.analyst_count ?? 0}`} />
@@ -159,17 +159,7 @@ export default function Company() {
 
 function Chip({ label }: { label: string }) {
   return (
-    <span
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        padding: "4px 10px",
-        borderRadius: 999,
-        border: "1px solid #444",
-        background: "#111",
-        fontSize: 13,
-      }}
-    >
+    <span className="inline-flex items-center px-2.5 py-1 rounded-full border border-gray-700 bg-gray-900 text-sm">
       {label}
     </span>
   );
