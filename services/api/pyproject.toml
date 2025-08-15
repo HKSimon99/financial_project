@@ -10,9 +10,20 @@ dependencies = [
   "fastapi>=0.112",
   "uvicorn[standard]>=0.30",
   "python-dotenv>=1.0",
-  "financial-core @ file:///${PROJECT_ROOT}/packages/core"
+  "financial-core @ file:///C:/workspace/kiwoom-python/financial_project/packages/core"
 ]
 
 [tool.setuptools]
 packages = ["app"]
 include-package-data = true
+
+[tool.ruff]
+line-length = 100
+exclude = [
+  "packages/core/build",
+  "dist",
+  "*.egg-info",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

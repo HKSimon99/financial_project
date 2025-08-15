@@ -23,3 +23,12 @@ Thumbs.db
 # Build artifacts
 *.log
 coverage/
+
+# Local build directories
+build/
+packages/core/build/
+# python build outputs
+packages/core/build/
+dist/
+*.egg-info/
+
