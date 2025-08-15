@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { api } from "../api/client";
 import { CompanyHeader } from "../components/CompanyHeader";
 import { PriceChart } from "../components/PriceChart";
@@ -11,6 +11,14 @@ type CompanyInfo = { corp_name: string; corp_code: string; stock_code: string };
 
 type Opinion = { opinion?: string | null; target_price?: number; analyst_count?: number };
 
+export type FinancialRow = {
+  account_nm: string;
+  thstrm_amount?: number | string | null;
+  [key: string]: unknown;
+};
+
+export type RatioRow = { [key: string]: number | string | undefined };
+
 export default function Company() {
   const [stock, setStock] = useState("005930");
   const [start, setStart] = useState("2024-01-01");
@@ -19,8 +27,8 @@ export default function Company() {
 
   // Server data
   const [info, setInfo] = useState<CompanyInfo | null>(null);
-  const [fsRows, setFsRows] = useState<any[]>([]);
-  const [ratios, setRatios] = useState<any[]>([]);
+  const [fsRows, setFsRows] = useState<FinancialRow[]>([]);
+  const [ratios, setRatios] = useState<RatioRow[]>([]);
   const [opinion, setOpinion] = useState<Opinion | null>(null);
   const [logo, setLogo] = useState<string | null>(null);
   const [lastPrice, setLastPrice] = useState<number | null>(null);
@@ -31,7 +39,7 @@ export default function Company() {
 
   const canBacktestRange = useMemo(() => start <= end, [start, end]);
 
-  const loadAll = async () => {
+  const loadAll = useCallback(async () => {
     setLoading(true);
     setErr(null);
     try {
@@ -39,7 +47,7 @@ export default function Company() {
       const ci = await api.get(`/lookup/company/${stock}`);
       setInfo(ci.data);
 
-      // 2) Parallel: financials snapshot, ratios, opinion, logo, prices
+      // 2) Parallel: financials snapshot, ratios, opinion
       const corp = ci.data.corp_code;
       const [fin, rat, op, lg, prices] = await Promise.all([
         api
@@ -61,8 +69,9 @@ export default function Company() {
       const pts = Array.isArray(prices.data?.points) ? prices.data.points : [];
       const lp = pts.length ? Number(pts[pts.length - 1]?.close) : null;
       setLastPrice(lp);
-    } catch (e: any) {
-      setErr(e?.response?.data?.detail ?? e.message ?? "load failed");
+    } catch (e) {
+      const errObj = e as { response?: { data?: { detail?: string } }; message?: string };
+      setErr(errObj.response?.data?.detail ?? errObj.message ?? "load failed");
       setFsRows([]);
       setRatios([]);
       setOpinion(null);
@@ -71,10 +80,12 @@ export default function Company() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [stock, start, end, year]);
 
   // Auto-load on first mount and when stock/year changes
-  useEffect(() => { loadAll(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [stock, year]);
+  useEffect(() => {
+    loadAll();
+  }, [loadAll]);
 
   return (
     <div style={{ padding: 24, display: "grid", gap: 16 }}>
@@ -94,7 +105,7 @@ export default function Company() {
         </div>
       </div>
 
-      {err && <div style={{ color: "#c33" }}>{err}</div>}
+      {err && <div style={{ color: "var(--color-danger)" }}>{err}</div>}
 
       {/* Company Header (logo + name + price) */}
       <CompanyHeader info={info} logo={logo} price={lastPrice} />

@@ -8,6 +8,14 @@ type OptimizeV1 = { tickers: string[]; weights: Record<string, number>; mean: nu
 type OptimizeV2 = { weights: number[]; annual_return: number; annual_volatility: number; sharpe_ratio: number; success: boolean };
 type OptimizeOut = OptimizeV1 | OptimizeV2;
 
+type OptimizeBody = {
+  tickers: string[];
+  start_date: string;
+  end_date: string;
+  risk_free: number;
+  method: "sharpe" | "minvar";
+};
+
 export default function Portfolio() {
   const [tickers, setTickers] = useState("005930, 000660, 035420");
   const [start, setStart] = useState("2024-01-01");
@@ -23,31 +31,29 @@ export default function Portfolio() {
   // Normalize weights to a vector aligned with current tickers
   const toWeightVector = (tick: string[], res: OptimizeOut | null): number[] => {
     if (!res) return new Array(tick.length).fill(1 / tick.length);
-    if ("weights" in res && Array.isArray((res as any).weights)) {
-      // V2: already an array
+    if (Array.isArray((res as OptimizeV2).weights)) {
       return (res as OptimizeV2).weights.map(Number);
     }
-    // V1: map ticker→weight object to array by order
     const map = (res as OptimizeV1).weights || {};
-    return tick.map(t => Number(map[t] ?? 0));
+    return tick.map((t) => Number(map[t] ?? 0));
   };
 
   const run = async () => {
     setLoading(true); setErr(null); setCurve(null);
     try {
-      const body: any = {
+      const body: OptimizeBody = {
         tickers: parseTickers(),
         start_date: start,
         end_date: end,
         risk_free: 0.02,
+        method,
       };
-      // 만약 백엔드 OptimizeIn에 method가 있으면 포함, 없으면 무시돼도 무해
-      body.method = method;
 
       const r = await api.post("/portfolio/optimize", body);
       setResult(r.data as OptimizeOut);
-    } catch (e: any) {
-      setErr(e?.response?.data?.detail ?? e.message ?? "optimize failed");
+    } catch (e) {
+      const errObj = e as { response?: { data?: { detail?: string } }; message?: string };
+      setErr(errObj.response?.data?.detail ?? errObj.message ?? "optimize failed");
       setResult(null);
     } finally {
       setLoading(false);
@@ -66,8 +72,9 @@ export default function Portfolio() {
         weights,
       });
       setCurve(r.data.curve as CurvePoint[]);
-    } catch (e: any) {
-      setErr(e?.response?.data?.detail ?? e.message ?? "backtest failed");
+    } catch (e) {
+      const errObj = e as { response?: { data?: { detail?: string } }; message?: string };
+      setErr(errObj.response?.data?.detail ?? errObj.message ?? "backtest failed");
       setCurve(null);
     } finally {
       setLoading(false);
@@ -80,7 +87,7 @@ export default function Portfolio() {
         <h2>포트폴리오 최적화</h2>
         <div style={{ display: "grid", gap: 8, gridTemplateColumns: "repeat(2, minmax(240px, 1fr))" }}>
           <input value={tickers} onChange={e=>setTickers(e.target.value)} placeholder="005930, 000660, 035420" />
-          <select value={method} onChange={e=>setMethod(e.target.value as any)}>
+          <select value={method} onChange={(e) => setMethod(e.target.value as "sharpe" | "minvar") }>
             <option value="sharpe">Max Sharpe</option>
             <option value="minvar">Min Variance</option>
           </select>
@@ -90,7 +97,7 @@ export default function Portfolio() {
           <button onClick={backtest} disabled={!result || loading}>백테스트</button>
         </div>
 
-        {err && <div style={{ marginTop: 12, color: "#c33" }}>{err}</div>}
+        {err && <div style={{ marginTop: 12, color: "var(--color-danger)" }}>{err}</div>}
 
         {result && (
           <pre style={{ marginTop: 16, background: "#111", color: "#0f0", padding: 12 }}>
