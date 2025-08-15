@@ -47,7 +47,7 @@ export default function Company() {
       const ci = await api.get(`/lookup/company/${stock}`);
       setInfo(ci.data);
 
-      // 2) Parallel: financials snapshot, ratios, opinion
+      // 2) Parallel: financials snapshot, ratios, opinion, logo, prices
       const corp = ci.data.corp_code;
       const [fin, rat, op, lg, prices] = await Promise.all([
         api
