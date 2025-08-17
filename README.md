@@ -64,6 +64,7 @@ python scripts/seed_companies.py
 # Backend
 uvicorn backend.app.main:app --reload            # SSE default
 FF_LIVE_WS=true uvicorn backend.app.main:app     # enable WebSocket
+FF_SCREENERS=false uvicorn backend.app.main:app  # disable screeners
 
 # Frontend
 cd apps/web
