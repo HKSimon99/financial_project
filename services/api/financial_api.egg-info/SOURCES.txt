@@ -1,9 +1,0 @@
-pyproject.toml
-app/__init__.py
-app/config.py
-app/main.py
-financial_api.egg-info/PKG-INFO
-financial_api.egg-info/SOURCES.txt
-financial_api.egg-info/dependency_links.txt
-financial_api.egg-info/requires.txt
-financial_api.egg-info/top_level.txt

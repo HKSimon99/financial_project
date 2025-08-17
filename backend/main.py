@@ -5,6 +5,7 @@ from core.clients.dart import DARTClient
 from core.services.market_data import dart_financials
 import os
 from dotenv import load_dotenv, find_dotenv
+
 load_dotenv(find_dotenv())  # 루트 .env까지 탐색해서 로드
 
 health = APIRouter()
@@ -26,13 +27,17 @@ app.add_middleware(
 
 market.setup_shutdown(app)
 
+
 @app.get("/health")
 async def _health():
     from datetime import datetime
+
     return {"ok": True, "ts": datetime.utcnow().isoformat()}
+
 
 async def get_dart() -> DARTClient:
     return DARTClient(api_key=os.environ["API_KEY"])
+
 
 # ✅ alias: allow /financials/{corp_or_stock}
 @app.get("/financials/{code}")
@@ -42,7 +47,9 @@ async def financials_alias(code: str, year: int, dart: DARTClient = Depends(get_
         corp_code = code
     else:
         # temporary: reject non-corp codes clearly
-        raise HTTPException(400, detail="Use corp_code (e.g., 00126380) or enable Option C mapping")
+        raise HTTPException(
+            400, detail="Use corp_code (e.g., 00126380) or enable Option C mapping"
+        )
     fs = await dart_financials(dart, corp_code, year)
     if not fs:
         raise HTTPException(404, detail="Financials not found")
