@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useWatchlistStore } from "@/lib/watchlist";
+import { useWatchlistStore } from "../../../lib/watchlist";
 
 export default function Actions({ slug }: { slug: string }) {
   const { items, add, remove } = useWatchlistStore();
