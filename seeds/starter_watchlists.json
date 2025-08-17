@@ -1,0 +1,12 @@
+[
+    {
+        "id": "kospi_tech_majors",
+        "name": "KOSPI Tech Majors",
+        "symbols": ["005930.KS", "000660.KS", "035420.KS", "035720.KS"]
+    },
+    {
+        "id": "crypto_l1s",
+        "name": "Crypto L1s",
+        "symbols": ["BTC", "ETH", "SOL", "AVAX", "BNB"]
+    }
+]
