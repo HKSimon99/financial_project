@@ -1,21 +1,51 @@
 import { create } from "zustand";
+import { apiFetch } from "./api";
 
-type WatchlistState = {
+export type WatchlistState = {
   items: string[];
-  add: (symbol: string) => void;
-  remove: (symbol: string) => void;
+  load: () => Promise<void>;
+  add: (symbol: string) => Promise<void>;
+  remove: (symbol: string) => Promise<void>;
 };
 
-export const useWatchlistStore = create<WatchlistState>((set) => ({
+// Zustand store holding the watchlist and exposing async actions that
+// persist to the backend. Each mutation applies optimistic updates and
+// rolls back on failure.
+export const useWatchlistStore = create<WatchlistState>((set, get) => ({
   items: [],
-  add: (symbol) =>
-    set((state) => ({
-      items: state.items.includes(symbol)
-        ? state.items
-        : [...state.items, symbol],
-    })),
-  remove: (symbol) =>
-    set((state) => ({
-      items: state.items.filter((s) => s !== symbol),
-    })),
+  async load() {
+    try {
+      const data = await apiFetch<string[]>("/api/watchlist");
+      set({ items: data });
+    } catch {
+      // ignore loading errors
+    }
+  },
+  async add(symbol: string) {
+    const prev = get().items;
+    if (prev.includes(symbol)) return;
+    const optimistic = [...prev, symbol];
+    set({ items: optimistic });
+    try {
+      await apiFetch("/api/watchlist", {
+        method: "POST",
+        body: JSON.stringify({ symbol }),
+      });
+    } catch {
+      // rollback on failure
+      set({ items: prev });
+    }
+  },
+  async remove(symbol: string) {
+    const prev = get().items;
+    if (!prev.includes(symbol)) return;
+    const optimistic = prev.filter((s) => s !== symbol);
+    set({ items: optimistic });
+    try {
+      await apiFetch(`/api/watchlist/${symbol}`, { method: "DELETE" });
+    } catch {
+      // rollback on failure
+      set({ items: prev });
+    }
+  },
 }));

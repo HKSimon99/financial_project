@@ -5,7 +5,7 @@ from dotenv import load_dotenv, find_dotenv
 
 from core.clients.dart import DARTClient
 from core.services.market_data import dart_financials
-from .app.routers import search
+from .app.routers import search, watchlist, screeners
 import os
 
 
@@ -20,6 +20,8 @@ app.include_router(portfolio.router, prefix="/portfolio", tags=["portfolio"])
 app.include_router(lookup.router, prefix="/lookup", tags=["lookup"])
 app.include_router(metrics.router, prefix="/metrics", tags=["metrics"])
 app.include_router(search.router, prefix="/api", tags=["search"])
+app.include_router(watchlist.router, prefix="/api/watchlist", tags=["watchlist"])
+app.include_router(screeners.router, prefix="/api/screeners", tags=["screeners"])
 
 app.add_middleware(
     CORSMiddleware,
