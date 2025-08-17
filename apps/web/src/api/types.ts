@@ -1,2 +1,0 @@
-export type PricePoint = { date: string; open?: number; high?: number; low?: number; close?: number; volume?: number; transaction_amount?: number; change?: number; };
-export type PriceSeries = { ticker: string; points: PricePoint[] };

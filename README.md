@@ -51,3 +51,29 @@ npm run dev
 4. 데이터베이스 시드
 
 uv run python scripts/seed_companies.py
+
+# Python setup
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+export DATABASE_URL=postgresql+psycopg://user:pass@localhost/db
+pip install -r requirements.txt
+alembic upgrade head
+python scripts/seed_companies.py
+
+# Backend
+uvicorn backend.app.main:app --reload            # SSE default
+FF_LIVE_WS=true uvicorn backend.app.main:app     # enable WebSocket
+
+# Frontend
+cd apps/web
+pnpm install
+pnpm dev
+
+# Tests
+pytest
+pnpm test
+pnpm playwright test
+
+# PWA build
+pnpm build && pnpm start
