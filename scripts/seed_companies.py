@@ -6,8 +6,18 @@ import json
 import os
 from pathlib import Path
 
-from sqlalchemy import Column, Integer, MetaData, String, Table, create_engine
-from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import (
+    Column,
+    DateTime,
+    Float,
+    Integer,
+    MetaData,
+    String,
+    Table,
+    create_engine,
+    func,
+)
+from sqlalchemy.dialects.postgresql import JSONB, insert
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SEED_FILE = BASE_DIR / "seeds" / "seed_companies_kr_en.json"
@@ -25,8 +35,19 @@ def main() -> None:
         "companies",
         metadata,
         Column("id", Integer, primary_key=True),
-        Column("name_kr", String, unique=True, nullable=False),
-        Column("name_en", String, nullable=False),
+        Column("name", String, nullable=False),
+        Column("ticker", String, nullable=False, unique=True),
+        Column("exchange", String),
+        Column("country", String),
+        Column("sector", String),
+        Column("aliases", JSONB),
+        Column("popularity", Float, server_default="0"),
+        Column(
+            "updated_at",
+            DateTime(timezone=True),
+            server_default=func.now(),
+            onupdate=func.now(),
+        ),
         extend_existing=True,
     )
     metadata.create_all(engine)
@@ -36,10 +57,13 @@ def main() -> None:
 
     with engine.begin() as conn:
         for record in records:
+            aliases = record.get("aliases")
+            if aliases and isinstance(aliases, list):
+                record["aliases"] = aliases
             stmt = insert(companies).values(**record)
+            update_cols = {k: stmt.excluded[k] for k in record.keys() if k != "id"}
             stmt = stmt.on_conflict_do_update(
-                index_elements=[companies.c.name_kr],
-                set_={"name_en": stmt.excluded.name_en},
+                index_elements=[companies.c.ticker], set_=update_cols
             )
             conn.execute(stmt)
 

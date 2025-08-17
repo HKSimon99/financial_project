@@ -1,0 +1,12 @@
+[
+  {
+    "id": "blue_chip",
+    "name": "Blue Chip KOSPI",
+    "symbols": ["005930", "000660", "035420"]
+  },
+  {
+    "id": "growth",
+    "name": "Growth Stocks",
+    "symbols": ["091990", "066570", "005380"]
+  }
+]

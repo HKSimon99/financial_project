@@ -1,10 +1,13 @@
-from fastapi import FastAPI, Depends, HTTPException, APIRouter
+from fastapi import APIRouter, Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from .routes import market, analysis, portfolio, lookup, metrics
+from dotenv import load_dotenv, find_dotenv
+
 from core.clients.dart import DARTClient
 from core.services.market_data import dart_financials
+from .app.routers import search
 import os
-from dotenv import load_dotenv, find_dotenv
+
 
 load_dotenv(find_dotenv())  # 루트 .env까지 탐색해서 로드
 
@@ -16,6 +19,7 @@ app.include_router(analysis.router, prefix="/analysis", tags=["analysis"])
 app.include_router(portfolio.router, prefix="/portfolio", tags=["portfolio"])
 app.include_router(lookup.router, prefix="/lookup", tags=["lookup"])
 app.include_router(metrics.router, prefix="/metrics", tags=["metrics"])
+app.include_router(search.router, prefix="/api", tags=["search"])
 
 app.add_middleware(
     CORSMiddleware,

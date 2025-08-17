@@ -14,3 +14,5 @@ pyarrow
 Pillow
 scikit-image
 requests-cache==1.2.0
+sqlalchemy>=2.0
+rapidfuzz>=3.1
