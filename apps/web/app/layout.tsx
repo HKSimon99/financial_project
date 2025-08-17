@@ -5,6 +5,7 @@ import "./globals.css";
 import { useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useWatchlistStore } from "../lib/watchlist";
+import ThemeToggle from "@/components/theme-toggle";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
@@ -15,9 +16,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   }, [load]);
 
   return (
-    <html lang="en">
+    <html lang="en" className="light">
       <body>
-        <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+        <QueryClientProvider client={queryClient}>
+          <div className="flex justify-end p-4">
+            <ThemeToggle />
+          </div>
+          {children}
+        </QueryClientProvider>
       </body>
     </html>
   );
