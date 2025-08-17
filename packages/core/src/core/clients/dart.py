@@ -1,11 +1,14 @@
 import httpx
 
+
 class DARTClient:
     def __init__(self, api_key: str, *, timeout: float = 10.0):
         self._client = httpx.AsyncClient(timeout=timeout)
         self.api_key = api_key
 
-    async def single_fs(self, corp_code: str, year: int, reprt_code: str, fs_div: str) -> dict:
+    async def single_fs(
+        self, corp_code: str, year: int, reprt_code: str, fs_div: str
+    ) -> dict:
         r = await self._client.get(
             "https://opendart.fss.or.kr/api/fnlttSinglAcntAll.json",
             params={

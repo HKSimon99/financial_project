@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 # Internal helpers
 # -----------------------------
 
+
 def _coerce_number(value: Any) -> float:
     """Convert DART numeric strings like "1,234" → float, else NaN."""
     try:
@@ -43,7 +44,10 @@ def _get_account_value(fs_df: pd.DataFrame, account_name: str) -> float:
 # Public API (pure functions)
 # -----------------------------
 
-def dcf_intrinsic_price(*, fcf0: float, growth: float, wacc: float, terminal_g: float, shares: float) -> float:
+
+def dcf_intrinsic_price(
+    *, fcf0: float, growth: float, wacc: float, terminal_g: float, shares: float
+) -> float:
     """5Y DCF + Gordon terminal; returns price per share."""
     years = np.arange(1, 6)
     fcfs = fcf0 * (1.0 + growth) ** years
@@ -54,7 +58,15 @@ def dcf_intrinsic_price(*, fcf0: float, growth: float, wacc: float, terminal_g: 
     return float(equity_value / shares) if shares else float("nan")
 
 
-def rim_intrinsic_price(*, bps: float, roe: float, cost_of_equity: float, growth: float, years: int, shares: float) -> float:
+def rim_intrinsic_price(
+    *,
+    bps: float,
+    roe: float,
+    cost_of_equity: float,
+    growth: float,
+    years: int,
+    shares: float,
+) -> float:
     """Residual Income Model with BV compounding, returns price per share."""
     bv = float(bps)
     residuals: list[float] = []
@@ -63,7 +75,9 @@ def rim_intrinsic_price(*, bps: float, roe: float, cost_of_equity: float, growth
         bv = bv + ni - (bv * growth)  # retain earnings; simplistic payout modelling
         ri = ni - (cost_of_equity * bv)
         residuals.append(ri)
-    pv_residuals = sum(ri / (1.0 + cost_of_equity) ** (i + 1) for i, ri in enumerate(residuals))
+    pv_residuals = sum(
+        ri / (1.0 + cost_of_equity) ** (i + 1) for i, ri in enumerate(residuals)
+    )
     intrinsic = bps + pv_residuals
     return float(intrinsic / shares) if shares else float("nan")
 
@@ -72,8 +86,14 @@ def calculate_financial_health(fs_df: pd.DataFrame) -> Dict[str, float | str]:
     """Compute debt/current ratios, ROE, op margin, interest coverage, Z-score-ish, score & grade."""
     if fs_df is None or fs_df.empty:
         return {
-            "debt_ratio": np.nan, "current_ratio": np.nan, "roe": np.nan, "op_margin": np.nan,
-            "interest_coverage": np.nan, "z_score": np.nan, "total_score": np.nan, "grade": "N/A"
+            "debt_ratio": np.nan,
+            "current_ratio": np.nan,
+            "roe": np.nan,
+            "op_margin": np.nan,
+            "interest_coverage": np.nan,
+            "z_score": np.nan,
+            "total_score": np.nan,
+            "grade": "N/A",
         }
 
     total_assets = _get_account_value(fs_df, "자산총계")
@@ -87,10 +107,16 @@ def calculate_financial_health(fs_df: pd.DataFrame) -> Dict[str, float | str]:
     interest_expense = _get_account_value(fs_df, "이자비용")
 
     debt_ratio = (total_liabilities / equity) * 100.0 if equity else np.nan
-    current_ratio = (current_assets / current_liabilities) * 100.0 if current_liabilities else np.nan
+    current_ratio = (
+        (current_assets / current_liabilities) * 100.0
+        if current_liabilities
+        else np.nan
+    )
     roe = (net_income / equity) * 100.0 if equity else np.nan
     op_margin = (operating_income / revenue) * 100.0 if revenue else np.nan
-    interest_coverage = (operating_income / interest_expense) if interest_expense else np.nan
+    interest_coverage = (
+        (operating_income / interest_expense) if interest_expense else np.nan
+    )
 
     def safe_div(a: float, b: float) -> float:
         return a / b if (a is not None and b not in (None, 0, np.nan)) else np.nan
@@ -103,26 +129,56 @@ def calculate_financial_health(fs_df: pd.DataFrame) -> Dict[str, float | str]:
 
     parts = [wca, rea, eita, mvel, sta]
     z_score = (
-        (1.2 * (0.0 if np.isnan(wca) else wca)) +
-        (1.4 * (0.0 if np.isnan(rea) else rea)) +
-        (3.3 * (0.0 if np.isnan(eita) else eita)) +
-        (0.6 * (0.0 if np.isnan(mvel) else mvel)) +
-        (1.0 * (0.0 if np.isnan(sta) else sta))
-    ) if not all(np.isnan(x) for x in parts) else np.nan
+        (
+            (1.2 * (0.0 if np.isnan(wca) else wca))
+            + (1.4 * (0.0 if np.isnan(rea) else rea))
+            + (3.3 * (0.0 if np.isnan(eita) else eita))
+            + (0.6 * (0.0 if np.isnan(mvel) else mvel))
+            + (1.0 * (0.0 if np.isnan(sta) else sta))
+        )
+        if not all(np.isnan(x) for x in parts)
+        else np.nan
+    )
 
     scores = {
-        "debt_ratio": max(0.0, min(100.0, 100.0 - (debt_ratio if not np.isnan(debt_ratio) else 100.0))),
-        "current_ratio": max(0.0, min(100.0, (current_ratio if not np.isnan(current_ratio) else 0.0))),
+        "debt_ratio": max(
+            0.0, min(100.0, 100.0 - (debt_ratio if not np.isnan(debt_ratio) else 100.0))
+        ),
+        "current_ratio": max(
+            0.0, min(100.0, (current_ratio if not np.isnan(current_ratio) else 0.0))
+        ),
         "roe": max(0.0, min(100.0, (roe if not np.isnan(roe) else 0.0))),
-        "op_margin": max(0.0, min(100.0, (op_margin if not np.isnan(op_margin) else 0.0))),
-        "interest_coverage": max(0.0, min(100.0, ((interest_coverage * 10.0) if not np.isnan(interest_coverage) else 0.0))),
-        "z_score": max(0.0, min(100.0, ((z_score * 20.0) if not np.isnan(z_score) else 0.0))),
+        "op_margin": max(
+            0.0, min(100.0, (op_margin if not np.isnan(op_margin) else 0.0))
+        ),
+        "interest_coverage": max(
+            0.0,
+            min(
+                100.0,
+                (
+                    (interest_coverage * 10.0)
+                    if not np.isnan(interest_coverage)
+                    else 0.0
+                ),
+            ),
+        ),
+        "z_score": max(
+            0.0, min(100.0, ((z_score * 20.0) if not np.isnan(z_score) else 0.0))
+        ),
     }
 
     total_score = (
-        (scores["debt_ratio"] * 0.2) + (scores["current_ratio"] * 0.2) + (scores["roe"] * 0.2) +
-        (scores["op_margin"] * 0.15) + (scores["interest_coverage"] * 0.15) + (scores["z_score"] * 0.1)
-    ) if not all(np.isnan(v) for v in scores.values()) else np.nan
+        (
+            (scores["debt_ratio"] * 0.2)
+            + (scores["current_ratio"] * 0.2)
+            + (scores["roe"] * 0.2)
+            + (scores["op_margin"] * 0.15)
+            + (scores["interest_coverage"] * 0.15)
+            + (scores["z_score"] * 0.1)
+        )
+        if not all(np.isnan(v) for v in scores.values())
+        else np.nan
+    )
 
     if np.isnan(total_score):
         grade = "N/A"
@@ -135,17 +191,23 @@ def calculate_financial_health(fs_df: pd.DataFrame) -> Dict[str, float | str]:
 
     return {
         "debt_ratio": float(debt_ratio) if not np.isnan(debt_ratio) else np.nan,
-        "current_ratio": float(current_ratio) if not np.isnan(current_ratio) else np.nan,
+        "current_ratio": (
+            float(current_ratio) if not np.isnan(current_ratio) else np.nan
+        ),
         "roe": float(roe) if not np.isnan(roe) else np.nan,
         "op_margin": float(op_margin) if not np.isnan(op_margin) else np.nan,
-        "interest_coverage": float(interest_coverage) if not np.isnan(interest_coverage) else np.nan,
+        "interest_coverage": (
+            float(interest_coverage) if not np.isnan(interest_coverage) else np.nan
+        ),
         "z_score": float(z_score) if not np.isnan(z_score) else np.nan,
         "total_score": float(total_score) if not np.isnan(total_score) else np.nan,
         "grade": grade,
     }
 
 
-def calculate_custom_ratios(fs_df: pd.DataFrame, price_df: pd.DataFrame) -> Dict[str, float]:
+def calculate_custom_ratios(
+    fs_df: pd.DataFrame, price_df: pd.DataFrame
+) -> Dict[str, float]:
     """Compute PER, PBR, dividend yield from FS + latest price."""
     if fs_df is None or fs_df.empty or price_df is None or price_df.empty:
         return {"PER": np.nan, "PBR": np.nan, "배당수익률(%)": np.nan}
@@ -160,10 +222,30 @@ def calculate_custom_ratios(fs_df: pd.DataFrame, price_df: pd.DataFrame) -> Dict
     total_equity = _get_account_value(fs_df, "자본총계")
     dividends = _get_account_value(fs_df, "배당금총액")
 
-    market_cap = latest_price * shares_outstanding if (not np.isnan(latest_price) and not np.isnan(shares_outstanding)) else np.nan
-    per = (market_cap / net_income) if (not np.isnan(market_cap) and not np.isnan(net_income) and net_income != 0) else np.nan
-    pbr = (market_cap / total_equity) if (not np.isnan(market_cap) and not np.isnan(total_equity) and total_equity != 0) else np.nan
-    dy = ((dividends / market_cap) * 100.0) if (not np.isnan(market_cap) and not np.isnan(dividends) and market_cap != 0) else np.nan
+    market_cap = (
+        latest_price * shares_outstanding
+        if (not np.isnan(latest_price) and not np.isnan(shares_outstanding))
+        else np.nan
+    )
+    per = (
+        (market_cap / net_income)
+        if (not np.isnan(market_cap) and not np.isnan(net_income) and net_income != 0)
+        else np.nan
+    )
+    pbr = (
+        (market_cap / total_equity)
+        if (
+            not np.isnan(market_cap)
+            and not np.isnan(total_equity)
+            and total_equity != 0
+        )
+        else np.nan
+    )
+    dy = (
+        ((dividends / market_cap) * 100.0)
+        if (not np.isnan(market_cap) and not np.isnan(dividends) and market_cap != 0)
+        else np.nan
+    )
 
     return {
         "PER": round(float(per), 2) if not np.isnan(per) else np.nan,
@@ -187,14 +269,23 @@ def compare_by_industry(df: pd.DataFrame) -> pd.DataFrame:
 def extract_fs_summary(fs_df: pd.DataFrame) -> Dict[str, float]:
     """Pick a few headline FS metrics for a card view."""
     if fs_df is None or fs_df.empty:
-        return {"매출액": np.nan, "영업이익": np.nan, "당기순이익": np.nan, "총자산": np.nan, "총부채": np.nan, "자본총계": np.nan}
+        return {
+            "매출액": np.nan,
+            "영업이익": np.nan,
+            "당기순이익": np.nan,
+            "총자산": np.nan,
+            "총부채": np.nan,
+            "자본총계": np.nan,
+        }
 
     def pick(key: str) -> float:
         # use exact match first; fallback to contains
         v = _get_account_value(fs_df, key)
         if np.isnan(v):
             try:
-                row = fs_df[fs_df["account_nm"].str.contains(key, na=False, regex=False)]
+                row = fs_df[
+                    fs_df["account_nm"].str.contains(key, na=False, regex=False)
+                ]
                 if not row.empty:
                     return _coerce_number(row.iloc[0].get("thstrm_amount"))
             except Exception:

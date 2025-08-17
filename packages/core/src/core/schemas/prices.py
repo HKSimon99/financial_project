@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import List, Optional
 
+
 class PricePoint(BaseModel):
     date: str
     open: Optional[float] = None
@@ -10,6 +11,7 @@ class PricePoint(BaseModel):
     volume: Optional[float] = None
     transaction_amount: Optional[float] = None
     change: Optional[float] = None
+
 
 class PriceSeries(BaseModel):
     ticker: str

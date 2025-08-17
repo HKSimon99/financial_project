@@ -47,3 +47,7 @@ cd apps/web
 npm install
 npm run lint
 npm run dev
+
+4. 데이터베이스 시드
+
+uv run python scripts/seed_companies.py

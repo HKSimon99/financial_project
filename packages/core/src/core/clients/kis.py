@@ -4,9 +4,17 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
 import httpx
 
+
 class KISClient:
-    def __init__(self, base_url: str, app_key: str, app_secret: str,
-                 *, timeout: float = 10.0, oauth_path: str = "/oauth2/tokenP"):
+    def __init__(
+        self,
+        base_url: str,
+        app_key: str,
+        app_secret: str,
+        *,
+        timeout: float = 10.0,
+        oauth_path: str = "/oauth2/tokenP",
+    ):
         self.base_url = base_url.rstrip("/")
         self.app_key = app_key
         self.app_secret = app_secret
@@ -26,8 +34,11 @@ class KISClient:
             for _ in range(2):
                 r = await self._client.post(
                     f"{self.base_url}{self.oauth_path}",
-                    json={"grant_type": "client_credentials",
-                          "appkey": self.app_key, "appsecret": self.app_secret},
+                    json={
+                        "grant_type": "client_credentials",
+                        "appkey": self.app_key,
+                        "appsecret": self.app_secret,
+                    },
                 )
                 try:
                     r.raise_for_status()
@@ -44,7 +55,8 @@ class KISClient:
             detail = getattr(last_exc.response, "text", "")[:200].replace("\n", " ")
             raise httpx.HTTPStatusError(
                 f"KIS token failed ({last_exc.response.status_code}). Hint: {detail}",
-                request=last_exc.request, response=last_exc.response
+                request=last_exc.request,
+                response=last_exc.response,
             )
 
     async def get(self, path: str, *, tr_id: str, params: Dict[str, Any]) -> dict:
@@ -56,12 +68,15 @@ class KISClient:
             "tr_id": tr_id,
             "custtype": "P",
         }
-        r = await self._client.get(f"{self.base_url}{path}", params=params, headers=headers)
+        r = await self._client.get(
+            f"{self.base_url}{path}", params=params, headers=headers
+        )
         r.raise_for_status()
         data = r.json()
         if data.get("rt_cd") != "0":
-            raise httpx.HTTPStatusError(message=data.get("msg1", "KIS error"),
-                                        request=r.request, response=r)
+            raise httpx.HTTPStatusError(
+                message=data.get("msg1", "KIS error"), request=r.request, response=r
+            )
         return data
 
     async def aclose(self):

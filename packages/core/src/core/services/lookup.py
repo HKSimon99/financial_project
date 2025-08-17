@@ -1,9 +1,11 @@
 from __future__ import annotations
-import io, zipfile, os
+import io
+import zipfile
 import pandas as pd
 import httpx
 from fastapi import HTTPException
 from core.utils.cache import path, fresh, save_parquet, load_parquet
+
 
 async def corp_table(api_key: str) -> pd.DataFrame:
     """
@@ -31,12 +33,16 @@ async def corp_table(api_key: str) -> pd.DataFrame:
             if cached is not None:
                 return cached
             snippet = r.text[:200].replace("\n", " ")
-            raise HTTPException(status_code=502, detail=f"DART corpCode not zip; response hint: {snippet}")
+            raise HTTPException(
+                status_code=502,
+                detail=f"DART corpCode not zip; response hint: {snippet}",
+            )
 
         try:
             with zipfile.ZipFile(io.BytesIO(r.content)) as z:
                 with z.open("CORPCODE.xml") as f:
                     import xml.etree.ElementTree as ET
+
                     tree = ET.parse(f)
         except zipfile.BadZipFile as e:
             cached = load_parquet(cache_file)
@@ -56,10 +62,15 @@ async def corp_table(api_key: str) -> pd.DataFrame:
     save_parquet(df, cache_file)
     return df
 
+
 async def company_info_by_stock(stock_code: str, api_key: str) -> dict | None:
     df = await corp_table(api_key)
     row = df[df["stock_code"] == stock_code]
     if row.empty:
         return None
     r = row.iloc[0]
-    return {"corp_name": r["corp_name"], "corp_code": r["corp_code"], "stock_code": r["stock_code"]}
+    return {
+        "corp_name": r["corp_name"],
+        "corp_code": r["corp_code"],
+        "stock_code": r["stock_code"],
+    }

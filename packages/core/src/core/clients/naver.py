@@ -8,6 +8,7 @@ from core.utils.cache import path, fresh, load_json, save_json
 NAVER_ID = os.getenv("NAVER_SEARCH_CLIENT_ID")
 NAVER_SECRET = os.getenv("NAVER_SEARCH_CLIENT_SECRET")
 
+
 async def company_logo(company_name: str, stock_code: str | None = None) -> str | None:
     cache = path("logos", f"{company_name}.json")
     if fresh(cache, days=30):
@@ -21,21 +22,34 @@ async def company_logo(company_name: str, stock_code: str | None = None) -> str 
     async with httpx.AsyncClient(timeout=5) as c:
         r = await c.get(
             "https://openapi.naver.com/v1/search/image",
-            headers={"X-Naver-Client-Id": NAVER_ID, "X-Naver-Client-Secret": NAVER_SECRET},
+            headers={
+                "X-Naver-Client-Id": NAVER_ID,
+                "X-Naver-Client-Secret": NAVER_SECRET,
+            },
             params={"query": f"{stock_code} tradingview", "display": 1, "sort": "sim"},
         )
         r.raise_for_status()
         items = r.json().get("items", [])
         logo_url = items[0]["link"] if items else "NO_LOGO"
-        save_json({
-            "company_name": company_name,
-            "logo_url": logo_url,
-            "expiry_date": (datetime.now() + timedelta(days=30)).isoformat(),
-        }, cache)
+        save_json(
+            {
+                "company_name": company_name,
+                "logo_url": logo_url,
+                "expiry_date": (datetime.now() + timedelta(days=30)).isoformat(),
+            },
+            cache,
+        )
         return None if logo_url == "NO_LOGO" else logo_url
-    
+
+
 class NaverImageSearch:
-    def __init__(self, client_id: Optional[str], client_secret: Optional[str], *, timeout: float = 5.0):
+    def __init__(
+        self,
+        client_id: Optional[str],
+        client_secret: Optional[str],
+        *,
+        timeout: float = 5.0,
+    ):
         self.client_id = client_id
         self.client_secret = client_secret
         self._client = httpx.AsyncClient(timeout=timeout)
@@ -49,7 +63,10 @@ class NaverImageSearch:
             return None
         r = await self._client.get(
             "https://openapi.naver.com/v1/search/image",
-            headers={"X-Naver-Client-Id": self.client_id, "X-Naver-Client-Secret": self.client_secret},
+            headers={
+                "X-Naver-Client-Id": self.client_id,
+                "X-Naver-Client-Secret": self.client_secret,
+            },
             params={"query": query, "display": 1, "sort": "sim"},
         )
         # 네이버 API는 200이어도 items 비어있을 수 있음

@@ -1,8 +1,8 @@
 from __future__ import annotations
-import numpy as np
 import pandas as pd
 
 # Safe extract (matches legacy semantics)
+
 
 def extract_value(df: pd.DataFrame | None, account_name: str) -> float:
     if df is None or df.empty:
@@ -13,7 +13,9 @@ def extract_value(df: pd.DataFrame | None, account_name: str) -> float:
     return float(pd.to_numeric(row.iloc[0].get("thstrm_amount"), errors="coerce"))
 
 
-def calculate_custom_metrics(df_fs: pd.DataFrame | None, df_price: pd.DataFrame | None) -> dict:
+def calculate_custom_metrics(
+    df_fs: pd.DataFrame | None, df_price: pd.DataFrame | None
+) -> dict:
     if df_fs is None or df_fs.empty:
         return {}
     m = {
@@ -25,18 +27,27 @@ def calculate_custom_metrics(df_fs: pd.DataFrame | None, df_price: pd.DataFrame 
         "total_equity": extract_value(df_fs, "자본총계"),
     }
     if df_price is not None and not df_price.empty:
-        m["latest_close_price"] = float(pd.to_numeric(df_price["close"].iloc[-1], errors="coerce"))
+        m["latest_close_price"] = float(
+            pd.to_numeric(df_price["close"].iloc[-1], errors="coerce")
+        )
     return m
 
 
 # Piotroski F-score
 
-def calculate_piotroski_f_score(df_curr: pd.DataFrame | None, df_prev: pd.DataFrame | None) -> tuple[int, dict]:
+
+def calculate_piotroski_f_score(
+    df_curr: pd.DataFrame | None, df_prev: pd.DataFrame | None
+) -> tuple[int, dict]:
     MAP = {
-        "NI": "당기순이익", "CFO": "영업활동으로인한현금흐름",
-        "TA": "자산총계", "TL": "부채총계",
-        "CA": "유동자산", "CL": "유동부채",
-        "REV": "매출액", "COGS": "매출원가",
+        "NI": "당기순이익",
+        "CFO": "영업활동으로인한현금흐름",
+        "TA": "자산총계",
+        "TL": "부채총계",
+        "CA": "유동자산",
+        "CL": "유동부채",
+        "REV": "매출액",
+        "COGS": "매출원가",
         "SHARES": "유통주식수",
     }
 
@@ -44,7 +55,11 @@ def calculate_piotroski_f_score(df_curr: pd.DataFrame | None, df_prev: pd.DataFr
         if df is None or df.empty:
             return float("nan")
         row = df[df["account_nm"] == MAP[key]]
-        return float(pd.to_numeric(row["thstrm_amount"].iloc[0], errors="coerce")) if not row.empty else float("nan")
+        return (
+            float(pd.to_numeric(row["thstrm_amount"].iloc[0], errors="coerce"))
+            if not row.empty
+            else float("nan")
+        )
 
     if df_curr is None or df_prev is None:
         return 0, {}

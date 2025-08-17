@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import List, Optional
 
+
 class FSRow(BaseModel):
     account_id: Optional[str] = None
     account_nm: Optional[str] = None
@@ -9,6 +10,7 @@ class FSRow(BaseModel):
     frmtrm_amount: Optional[str] = None
     fs_div: Optional[str] = None
     reprt_code: Optional[str] = None
+
 
 class FinancialStatement(BaseModel):
     corp_code: str
