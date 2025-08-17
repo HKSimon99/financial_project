@@ -6,14 +6,22 @@ build-backend = "setuptools.build_meta"
 name = "financial-project"
 version = "0.1.0"
 requires-python = ">=3.11"
-  dependencies = [
+dependencies = [
     "fastapi>=0.112",
     "uvicorn[standard]>=0.30",
     "python-dotenv>=1.0",
     "sqlalchemy>=2.0",
     "rapidfuzz>=3.1",
     "financial-core @ file:///C:/workspace/kiwoom-python/financial_project/packages/core",
-  ]
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "coverage",
+    "ruff",
+    "black",
+]
 
 [tool.black]
 line-length = 88
@@ -22,3 +30,12 @@ target-version = ["py311"]
 [tool.ruff]
 line-length = 88
 target-version = "py311"
+
+[tool.pytest.ini_options]
+addopts = "--cov=backend --cov-report=term-missing"
+testpaths = ["backend/tests"]
+python_files = ["test_*.py", "*_test.py"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["backend*"]

@@ -1,11 +1,9 @@
 import os
 import requests
-import tempfile
 import pandas as pd
 import numpy as np  # np.nan 사용을 위해 추가
 from fpdf import FPDF
 import plotly.express as px
-import plotly.graph_objects as go
 import logging
 from io import BytesIO
 from dotenv import load_dotenv  # API_KEY 로드를 위해 추가 (독립 실행시)
@@ -14,7 +12,6 @@ from dotenv import load_dotenv  # API_KEY 로드를 위해 추가 (독립 실행
 from ._legacy_analysis import extract_fs_summary
 from ._legacy_data_fetch import (
     load_or_create_corp_code_list,
-    get_fiscal_month,
 )  # get_fiscal_month는 현재 사용되지 않지만, 혹시 모를 미래 확장을 위해 유지
 
 # 로깅 설정 (다른 모듈과 일관성 유지)

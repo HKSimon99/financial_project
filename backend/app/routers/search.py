@@ -34,7 +34,9 @@ companies = Table(
 
 
 def _normalize(text: str) -> str:
-    text = unicodedata.normalize("NFD", text.lower())
+    text = unicodedata.normalize("NFKD", text.lower())
+    text = "".join(ch for ch in text if not unicodedata.combining(ch))
+    text = unicodedata.normalize("NFC", text)
     text = re.sub(r"[\s-]+", "", text)
     return text
 

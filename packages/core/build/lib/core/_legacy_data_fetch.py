@@ -3,7 +3,6 @@ import requests
 import zipfile
 import io
 import pandas as pd
-import time
 import aiohttp
 import asyncio
 import logging

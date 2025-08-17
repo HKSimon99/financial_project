@@ -13,7 +13,9 @@ export default function ThemeToggle() {
       setTheme(stored);
       document.documentElement.classList.add(stored);
     } else {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const prefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)",
+      ).matches;
       const initial = prefersDark ? "dark" : "light";
       setTheme(initial);
       document.documentElement.classList.add(initial);

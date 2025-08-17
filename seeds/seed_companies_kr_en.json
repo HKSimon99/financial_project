@@ -1,102 +1,102 @@
 [
-    {
-        "ticker": "005930.KS",
-        "name": "삼성전자",
-        "name_en": "Samsung Electronics",
-        "exchange": "KOSPI",
-        "country": "South Korea",
-        "sector": "Technology",
-        "aliases": ["Samsung Electronics", "Samsung"],
-        "popularity": 100
-    },
-    {
-        "ticker": "000660.KS",
-        "name": "SK하이닉스",
-        "name_en": "SK Hynix",
-        "exchange": "KOSPI",
-        "country": "South Korea",
-        "sector": "Technology",
-        "aliases": ["SK Hynix", "에스케이하이닉스"],
-        "popularity": 80
-    },
-    {
-        "ticker": "005380.KS",
-        "name": "현대자동차",
-        "name_en": "Hyundai Motor",
-        "exchange": "KOSPI",
-        "country": "South Korea",
-        "sector": "Automotive",
-        "aliases": ["Hyundai", "Hyundai Motor Company"],
-        "popularity": 70
-    },
-    {
-        "ticker": "000270.KS",
-        "name": "기아",
-        "name_en": "Kia",
-        "exchange": "KOSPI",
-        "country": "South Korea",
-        "sector": "Automotive",
-        "aliases": ["Kia Motors"],
-        "popularity": 60
-    },
-    {
-        "ticker": "003550.KS",
-        "name": "LG화학",
-        "name_en": "LG Chem",
-        "exchange": "KOSPI",
-        "country": "South Korea",
-        "sector": "Chemicals",
-        "aliases": ["LG Chemical"],
-        "popularity": 50
-    },
-    {
-        "ticker": "005490.KS",
-        "name": "포스코홀딩스",
-        "name_en": "POSCO Holdings",
-        "exchange": "KOSPI",
-        "country": "South Korea",
-        "sector": "Materials",
-        "aliases": ["POSCO"],
-        "popularity": 40
-    },
-    {
-        "ticker": "207940.KS",
-        "name": "삼성바이오로직스",
-        "name_en": "Samsung Biologics",
-        "exchange": "KOSPI",
-        "country": "South Korea",
-        "sector": "Biotechnology",
-        "aliases": ["Samsung BioLogics"],
-        "popularity": 30
-    },
-    {
-        "ticker": "068270.KS",
-        "name": "셀트리온",
-        "name_en": "Celltrion",
-        "exchange": "KOSPI",
-        "country": "South Korea",
-        "sector": "Biotechnology",
-        "aliases": ["Celltrion Inc"],
-        "popularity": 25
-    },
-    {
-        "ticker": "035420.KS",
-        "name": "네이버",
-        "name_en": "NAVER",
-        "exchange": "KOSPI",
-        "country": "South Korea",
-        "sector": "Communication Services",
-        "aliases": ["Naver Corp"],
-        "popularity": 45
-    },
-    {
-        "ticker": "035720.KS",
-        "name": "카카오",
-        "name_en": "Kakao",
-        "exchange": "KOSPI",
-        "country": "South Korea",
-        "sector": "Communication Services",
-        "aliases": ["Kakao Corp"],
-        "popularity": 35
-    }
+  {
+    "ticker": "005930.KS",
+    "name": "삼성전자",
+    "name_en": "Samsung Electronics",
+    "exchange": "KOSPI",
+    "country": "South Korea",
+    "sector": "Technology",
+    "aliases": ["Samsung Electronics", "Samsung"],
+    "popularity": 100
+  },
+  {
+    "ticker": "000660.KS",
+    "name": "SK하이닉스",
+    "name_en": "SK Hynix",
+    "exchange": "KOSPI",
+    "country": "South Korea",
+    "sector": "Technology",
+    "aliases": ["SK Hynix", "에스케이하이닉스"],
+    "popularity": 80
+  },
+  {
+    "ticker": "005380.KS",
+    "name": "현대자동차",
+    "name_en": "Hyundai Motor",
+    "exchange": "KOSPI",
+    "country": "South Korea",
+    "sector": "Automotive",
+    "aliases": ["Hyundai", "Hyundai Motor Company"],
+    "popularity": 70
+  },
+  {
+    "ticker": "000270.KS",
+    "name": "기아",
+    "name_en": "Kia",
+    "exchange": "KOSPI",
+    "country": "South Korea",
+    "sector": "Automotive",
+    "aliases": ["Kia Motors"],
+    "popularity": 60
+  },
+  {
+    "ticker": "003550.KS",
+    "name": "LG화학",
+    "name_en": "LG Chem",
+    "exchange": "KOSPI",
+    "country": "South Korea",
+    "sector": "Chemicals",
+    "aliases": ["LG Chemical"],
+    "popularity": 50
+  },
+  {
+    "ticker": "005490.KS",
+    "name": "포스코홀딩스",
+    "name_en": "POSCO Holdings",
+    "exchange": "KOSPI",
+    "country": "South Korea",
+    "sector": "Materials",
+    "aliases": ["POSCO"],
+    "popularity": 40
+  },
+  {
+    "ticker": "207940.KS",
+    "name": "삼성바이오로직스",
+    "name_en": "Samsung Biologics",
+    "exchange": "KOSPI",
+    "country": "South Korea",
+    "sector": "Biotechnology",
+    "aliases": ["Samsung BioLogics"],
+    "popularity": 30
+  },
+  {
+    "ticker": "068270.KS",
+    "name": "셀트리온",
+    "name_en": "Celltrion",
+    "exchange": "KOSPI",
+    "country": "South Korea",
+    "sector": "Biotechnology",
+    "aliases": ["Celltrion Inc"],
+    "popularity": 25
+  },
+  {
+    "ticker": "035420.KS",
+    "name": "네이버",
+    "name_en": "NAVER",
+    "exchange": "KOSPI",
+    "country": "South Korea",
+    "sector": "Communication Services",
+    "aliases": ["Naver Corp"],
+    "popularity": 45
+  },
+  {
+    "ticker": "035720.KS",
+    "name": "카카오",
+    "name_en": "Kakao",
+    "exchange": "KOSPI",
+    "country": "South Korea",
+    "sector": "Communication Services",
+    "aliases": ["Kakao Corp"],
+    "popularity": 35
+  }
 ]

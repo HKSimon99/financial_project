@@ -3,7 +3,11 @@ import Actions from "./actions";
 
 const Chart = dynamic(() => import("@/components/chart"), { ssr: false });
 
-export default async function InstrumentPage({ params }: { params: { slug: string } }) {
+export default async function InstrumentPage({
+  params,
+}: {
+  params: { slug: string };
+}) {
   const { slug } = params;
 
   async function fetchJSON(url: string) {

@@ -1,0 +1,10 @@
+[run]
+source = backend
+branch = True
+
+[report]
+show_missing = True
+skip_empty = True
+fail_under = 0
+omit =
+    tests/*

@@ -1,15 +1,40 @@
 repos:
-  - repo: https://github.com/psf/black
-    rev: 24.4.2
-    hooks: [{id: black}]
+  # 1) Ruff first (fixes), then Black
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.5.5
     hooks:
       - id: ruff
         args: ["--fix", "--exit-non-zero-on-fix"]
-        exclude: |
-          (?x)(
-            ^packages/core/build/|
-            ^dist/|
-            \.egg-info/
-          )
+
+  - repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+
+  # 2) Prettier v3 mirror that’s maintained
+  - repo: https://github.com/JoC0de/pre-commit-prettier
+    rev: v3.6.2
+    hooks:
+      - id: prettier
+        types_or: [css, javascript, jsx, ts, tsx, json, markdown, yaml]
+        additional_dependencies:
+          - "prettier@3.6.2"
+
+  # 3) ESLint v9 flat-config (ensure deps are available in the hook env)
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.32.0
+    hooks:
+      - id: eslint
+        files: "\\.[jt]sx?$"
+        additional_dependencies:
+          - "eslint@9.32.0"
+          - "@eslint/js@9.32.0"
+
+  # 4) Pytest (hook-managed venv so --cov works)
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest
+        entry: pytest --cov=backend --cov-report=term-missing
+        language: system
+        pass_filenames: false

@@ -12,7 +12,9 @@ interface Rule {
 }
 
 export default function ScreenersPage() {
-  const [rules, setRules] = useState<Rule[]>([{ metric: "pe", op: "<", value: 15 }]);
+  const [rules, setRules] = useState<Rule[]>([
+    { metric: "pe", op: "<", value: 15 },
+  ]);
   const [results, setResults] = useState<any[]>([]);
 
   useEffect(() => {
@@ -29,11 +31,15 @@ export default function ScreenersPage() {
   }, []);
 
   const updateRule = (idx: number, patch: Partial<Rule>) => {
-    setRules((r) => r.map((rule, i) => (i === idx ? { ...rule, ...patch } : rule)));
+    setRules((r) =>
+      r.map((rule, i) => (i === idx ? { ...rule, ...patch } : rule)),
+    );
   };
 
-  const addRule = () => setRules([...rules, { metric: "pe", op: "<", value: 0 }]);
-  const removeRule = (idx: number) => setRules(rules.filter((_, i) => i !== idx));
+  const addRule = () =>
+    setRules([...rules, { metric: "pe", op: "<", value: 0 }]);
+  const removeRule = (idx: number) =>
+    setRules(rules.filter((_, i) => i !== idx));
 
   const run = async () => {
     const res = await apiFetch<any[]>("/api/screeners/run", {
@@ -78,7 +84,7 @@ export default function ScreenersPage() {
               onChange={(e) => updateRule(i, { op: e.target.value })}
               className="border rounded p-2"
             >
-              {['<', '<=', '>', '>=', '=='].map((op) => (
+              {["<", "<=", ">", ">=", "=="].map((op) => (
                 <option key={op} value={op}>
                   {op}
                 </option>
@@ -87,7 +93,9 @@ export default function ScreenersPage() {
             <Input
               type="number"
               value={r.value}
-              onChange={(e) => updateRule(i, { value: parseFloat(e.target.value) })}
+              onChange={(e) =>
+                updateRule(i, { value: parseFloat(e.target.value) })
+              }
               className="w-24"
             />
             <Button variant="secondary" onClick={() => removeRule(i)}>
@@ -102,7 +110,11 @@ export default function ScreenersPage() {
         <Button variant="secondary" onClick={share}>
           Share
         </Button>
-        <Button variant="secondary" onClick={exportCsv} disabled={!results.length}>
+        <Button
+          variant="secondary"
+          onClick={exportCsv}
+          disabled={!results.length}
+        >
           Export CSV
         </Button>
       </div>

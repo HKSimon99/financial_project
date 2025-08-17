@@ -13,8 +13,6 @@ dist/
 apps/web/.env*
 apps/web/.vite/
 apps/mobile/.env*
-frontend/.env*
-frontend/.next/
 .next/
 
 # OS/IDE
@@ -34,3 +32,4 @@ packages/core/build/
 packages/core/build/
 dist/
 **/*.egg-info/
+*.egg-info

@@ -14,7 +14,7 @@ export default function MiniChart({ symbol }: { symbol: string }) {
         const s = start.toISOString().slice(0, 10);
         const e = end.toISOString().slice(0, 10);
         const data = await apiFetch<{ points: { close: number }[] }>(
-          `/api/instrument/${symbol}/ohlcv?start=${s}&end=${e}`
+          `/api/instrument/${symbol}/ohlcv?start=${s}&end=${e}`,
         );
         setPoints(data.points.map((p) => p.close));
       } catch {

@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import React, { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 interface SearchResult {
   slug: string;
@@ -13,7 +13,7 @@ interface SearchResult {
 }
 
 export default function SearchBox() {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [suggestion, setSuggestion] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -22,13 +22,18 @@ export default function SearchBox() {
   // Focus with '/'
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === '/' && !(e.target instanceof HTMLInputElement) && !(e.target instanceof HTMLTextAreaElement) && !(e.target as HTMLElement).isContentEditable) {
+      if (
+        e.key === "/" &&
+        !(e.target instanceof HTMLInputElement) &&
+        !(e.target instanceof HTMLTextAreaElement) &&
+        !(e.target as HTMLElement).isContentEditable
+      ) {
         e.preventDefault();
         inputRef.current?.focus();
       }
     };
-    document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
   }, []);
 
   // Debounced search
@@ -58,7 +63,7 @@ export default function SearchBox() {
   }, [query]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && results[0]) {
+    if (e.key === "Enter" && results[0]) {
       router.push(`/i/${results[0].slug}`);
     }
   };
@@ -80,8 +85,8 @@ export default function SearchBox() {
             <li
               key={r.slug}
               className={cn(
-                'cursor-pointer px-3 py-2 hover:bg-accent',
-                lowConfidence && idx === 0 ? 'bg-yellow-100' : ''
+                "cursor-pointer px-3 py-2 hover:bg-accent",
+                lowConfidence && idx === 0 ? "bg-yellow-100" : "",
               )}
               onMouseDown={() => router.push(`/i/${r.slug}`)}
             >

@@ -1,5 +1,6 @@
 from __future__ import annotations
-import io, zipfile, os
+import io
+import zipfile
 import pandas as pd
 import httpx
 from fastapi import HTTPException

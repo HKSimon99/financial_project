@@ -28,7 +28,7 @@ export default function Chart({ slug }: { slug: string }) {
             .toISOString()
             .slice(0, 10);
           const res = await fetch(
-            `/api/instrument/${slug}/ohlcv?start=${start}&end=${end}`
+            `/api/instrument/${slug}/ohlcv?start=${start}&end=${end}`,
           );
           const data = await res.json();
           if (data?.points) setPoints(data.points);
