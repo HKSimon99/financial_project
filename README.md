@@ -97,6 +97,43 @@ cd apps/web
 pnpm dev
 ```
 
+## 🔍 API Field Usage Check
+
+The repository includes a script to report which API fields are referenced by the frontend.
+
+### Prerequisites
+
+- `pnpm`
+- `ts-node`
+
+Example installation:
+
+```bash
+npm install -g pnpm
+pnpm add -g ts-node
+```
+
+The repository includes tooling to detect API response fields that are never
+referenced by the frontend. The pipeline writes a few CSV files in `/tmp`:
+
+- `scripts/scan_frontend_usage.ts` → `/tmp/frontend_usage.csv` with `path,field`
+  rows showing where each field is used.
+- `scripts/join_unused_fields.js` joins `/tmp/api_fields.csv` (generated from the
+  backend) with the frontend usage data and writes any unreferenced fields to
+  `/tmp/unused.csv` using the same `path,field` format.
+
+Run `check_api_field_usage.sh` to execute the full pipeline.
+
+Running the script generates `/tmp/api_fields.csv` with all available API fields and `/tmp/frontend_usage.csv` with fields used on the frontend.
+
+`pre-commit`에 등록된 `check-api-field-usage` 훅은 백엔드 API 필드가 프론트엔드에서 사용되는지 검증합니다.
+`scripts/check_api_field_usage.sh`는 `scripts/unused_api_fields_allowlist.txt`에 없는 미사용 필드를 발견하면 실패합니다.
+
+의도적으로 미사용 필드를 허용하려면:
+
+1. `scripts/unused_api_fields_allowlist.txt`에 필드를 추가합니다.
+2. 일시적으로 훅을 건너뛰려면 `SKIP=check-api-field-usage git commit`을 사용합니다.
+
 ## 🛠️ Troubleshooting
 
 - 환경 변수가 누락되면 서버가 500 오류를 반환합니다.

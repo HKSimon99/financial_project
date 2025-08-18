@@ -11,18 +11,25 @@ interface Rule {
   value: number;
 }
 
+type ScreenerRow = {
+  ticker: string;
+  name?: string;
+  // keep room for extra fields without using `any`
+  [k: string]: unknown;
+};
+
 export default function ScreenersPage() {
   const [rules, setRules] = useState<Rule[]>([
     { metric: "pe", op: "<", value: 15 },
   ]);
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<ScreenerRow[]>([]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const encoded = params.get("rules");
     if (encoded) {
       try {
-        const parsed = JSON.parse(decodeURIComponent(encoded));
+        const parsed = JSON.parse(decodeURIComponent(encoded)) as Rule[];
         setRules(parsed);
       } catch {
         /* ignore */
@@ -42,7 +49,7 @@ export default function ScreenersPage() {
     setRules(rules.filter((_, i) => i !== idx));
 
   const run = async () => {
-    const res = await apiFetch<any[]>("/api/screeners/run", {
+    const res = await apiFetch<ScreenerRow[]>("/api/screeners/run", {
       method: "POST",
       body: JSON.stringify({ rules }),
     });
@@ -58,7 +65,7 @@ export default function ScreenersPage() {
 
   const exportCsv = () => {
     const header = "ticker,name\n";
-    const rows = results.map((r) => `${r.ticker},${r.name}`).join("\n");
+    const rows = results.map((r) => `${r.ticker},${r.name ?? ""}`).join("\n");
     const blob = new Blob([header + rows], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -121,7 +128,7 @@ export default function ScreenersPage() {
       <ul className="space-y-2">
         {results.map((r) => (
           <li key={r.ticker} className="border p-2">
-            {r.ticker} - {r.name}
+            {r.ticker} - {r.name ?? ""}
           </li>
         ))}
       </ul>

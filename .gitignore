@@ -28,8 +28,12 @@ coverage/
 # Local build directories
 build/
 packages/core/build/
+
 # python build outputs
 packages/core/build/
 dist/
 **/*.egg-info/
 *.egg-info
+
+# compiled from scripts/scan_frontend_usage.ts (should be in OS tmp only)
+scripts/scan_frontend_usage.js

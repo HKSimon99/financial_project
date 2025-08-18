@@ -9,7 +9,7 @@ interface PricePoint {
   low?: number;
   close?: number;
   volume?: number;
-  [key: string]: any;
+  [key: string]: unknown; // was `any`
 }
 
 export default function Chart({ slug }: { slug: string }) {
@@ -31,7 +31,7 @@ export default function Chart({ slug }: { slug: string }) {
             `/api/instrument/${slug}/ohlcv?start=${start}&end=${end}`,
           );
           const data = await res.json();
-          if (data?.points) setPoints(data.points);
+          if (data?.points) setPoints(data.points as PricePoint[]);
         } catch {
           /* ignore */
         }
@@ -42,7 +42,7 @@ export default function Chart({ slug }: { slug: string }) {
       es = new EventSource(`/api/instrument/${slug}/ohlcv?live=true`);
       es.onmessage = (e) => {
         try {
-          const point = JSON.parse(e.data);
+          const point = JSON.parse(e.data) as PricePoint;
           setPoints((prev) => [...prev, point].slice(-500));
         } catch {
           /* ignore */

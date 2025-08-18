@@ -1,12 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import MiniChart from "./mini-chart";
 import { apiFetch } from "../../lib/api";
+import { telemetry } from "../lib/telemetry";
+
+interface SnapshotData {
+  close?: number | null;
+  change?: number | null;
+  volume?: number | null;
+}
 
 interface Snapshot {
   slug: string;
-  snapshot?: { [key: string]: any };
+  snapshot?: SnapshotData;
+}
+
+function Field({ value, field }: { value: ReactNode; field: string }) {
+  useEffect(() => {
+    telemetry("ui.field_shown", { field });
+  }, [field]);
+
+  return <>{value}</>;
 }
 
 export default function CompareTable({ tickers }: { tickers: string[] }) {
@@ -31,19 +46,37 @@ export default function CompareTable({ tickers }: { tickers: string[] }) {
         <tr className="bg-gray-100">
           <th className="p-2 text-left">Ticker</th>
           <th className="p-2 text-left">Close</th>
+          <th className="p-2 text-left">Change</th>
+          <th className="p-2 text-left">Volume</th>
           <th className="p-2 text-left">Chart</th>
         </tr>
       </thead>
       <tbody>
-        {tickers.map((t) => (
-          <tr key={t} className="border-t">
-            <td className="p-2 font-mono">{t}</td>
-            <td className="p-2">{data[t]?.snapshot?.close ?? "-"}</td>
-            <td className="p-2">
-              <MiniChart symbol={t} />
-            </td>
-          </tr>
-        ))}
+        {tickers.map((t) => {
+          return (
+            <tr key={t} className="border-t">
+              <td className="p-2 font-mono">{t}</td>
+              <td className="p-2">{data[t]?.snapshot?.close ?? "-"}</td>
+              <td className="p-2">
+                {data[t]?.snapshot?.change != null ? (
+                  <Field value={data[t].snapshot.change} field="change" />
+                ) : (
+                  "-"
+                )}
+              </td>
+              <td className="p-2">
+                {data[t]?.snapshot?.volume != null ? (
+                  <Field value={data[t].snapshot.volume} field="volume" />
+                ) : (
+                  "-"
+                )}
+              </td>
+              <td className="p-2">
+                <MiniChart symbol={t} />
+              </td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );

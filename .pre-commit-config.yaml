@@ -11,7 +11,7 @@ repos:
     hooks:
       - id: black
 
-  # 2) Prettier v3 mirror that’s maintained
+  # 2) Prettier v3
   - repo: https://github.com/JoC0de/pre-commit-prettier
     rev: v3.6.2
     hooks:
@@ -20,19 +20,28 @@ repos:
         additional_dependencies:
           - "prettier@3.6.2"
 
-  # 3) ESLint v9 flat-config (ensure deps are available in the hook env)
+  # 3) ESLint v9 (flat config)
   - repo: https://github.com/pre-commit/mirrors-eslint
     rev: v9.32.0
     hooks:
       - id: eslint
-        files: "\\.[jt]sx?$"
+        # js, jsx, mjs, cjs, ts, tsx 전체 포함
+        files: "\\.(?:[cm]?js|jsx|ts|tsx)$"
         additional_dependencies:
           - "eslint@9.32.0"
           - "@eslint/js@9.32.0"
+          - "eslint-config-prettier@^9"
+          - "typescript-eslint@latest"
 
-  # 4) Pytest (hook-managed venv so --cov works)
+  # 4) Local hooks
   - repo: local
     hooks:
+      - id: check-api-field-usage
+        name: check API field usage
+        entry: bash scripts/check_api_field_usage.sh
+        language: system
+        pass_filenames: false
+
       - id: pytest
         name: pytest
         entry: pytest --cov=backend --cov-report=term-missing

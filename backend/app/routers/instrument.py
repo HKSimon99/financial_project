@@ -4,14 +4,12 @@ import os
 from functools import lru_cache
 from typing import AsyncIterator
 
-from fastapi import APIRouter, Depends, HTTPException, Request, WebSocket
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, WebSocket
 from starlette.responses import StreamingResponse
 
 from core.clients.kis import KISClient
 from core.schemas.prices import PricePoint, PriceSeries
 from core.services.market_data import kis_daily_price
-
-router = APIRouter()
 
 
 def _env(name: str) -> str:
@@ -19,6 +17,9 @@ def _env(name: str) -> str:
     if not val:
         raise HTTPException(500, detail=f"Missing environment variable: {name}")
     return val
+
+
+router = APIRouter()
 
 
 @lru_cache(maxsize=1)
@@ -55,9 +56,23 @@ async def ohlcv(
     request: Request,
     live: bool = False,
     ws: bool = False,
+    fields: str | None = Query(
+        "close",
+        description="Comma-separated list of fields to include in the response."
+        " Defaults to 'close'.",
+    ),
     kis: KISClient = Depends(get_kis),
 ):
-    """Return historical or live OHLCV data for the instrument."""
+    """Return historical or live OHLCV data for the instrument.
+
+    Parameters
+    ----------
+    fields: Optional[str]
+        Comma-separated list of fields to include in each price point. By
+        default only the ``close`` price is returned. Available fields are
+        ``open``, ``high``, ``low``, ``close``, ``volume``,
+        ``transaction_amount``, and ``change``.
+    """
     if live:
         if ws and os.getenv("FF_LIVE_WS"):
             # WebSocket connections handled by the websocket route
@@ -72,6 +87,11 @@ async def ohlcv(
         return StreamingResponse(event_stream(), media_type="text/event-stream")
 
     df = await kis_daily_price(kis, slug, start, end)
+
+    field_list = [] if not fields else [f.strip() for f in fields.split(",") if f]
+    columns = ["date", *field_list]
+    df = df[[c for c in columns if c in df.columns]]
+
     points = [PricePoint(**row) for row in df.to_dict(orient="records")]
     return PriceSeries(ticker=slug, points=points)
 

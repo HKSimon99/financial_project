@@ -1,0 +1,2 @@
+# List unused API fields that are intentionally allowed.
+# One field per line.
